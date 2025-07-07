@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞行器数据监控</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>飞行器数据监控</h1>
+        
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>地面速度 (mph)</th>
+                    <th>姿态偏航 (°)</th>
+                    <th>系统状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="speed">-</td>
+                    <td id="yaw">-</td>
+                    <td id="battery">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        // 定时更新数据
+        setInterval(updateData, 1000);  // 每秒更新一次
+        
+        function updateData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新速度数据
+                    if (data.speed_data) {
+                        document.getElementById('speed').textContent = 
+                            `X: ${data.speed_data[0].toFixed(1)}, Y: ${data.speed_data[1].toFixed(1)}, Z: ${data.speed_data[2].toFixed(1)}`;
+                    }
+                    
+                    // 更新姿态偏航数据
+                    if (data.yaw_data !== null) {
+                        document.getElementById('yaw').textContent = data.yaw_data.toFixed(1);
+                    }
+                    
+                    // 更新电压和电量数据
+                    if (data.battery_data) {
+                        document.getElementById('battery').textContent = 
+                            `电压: ${data.battery_data[0].toFixed(1)}V, 电量: ${data.battery_data[1]}%`;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取数据失败:', error);
+                });
+        }
+    </script>
+</body>
+</html>
